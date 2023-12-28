@@ -40,11 +40,8 @@ public class GameService {
 
     public void FillSpace(int playerTurn, int row, int col) {
         switch (playerTurn) {
-            case 1:
-                this.board[row][col] = 'x';
-                break;
-            case 2:
-                this.board[row][col] = 'o';
+            case 1 -> this.board[row][col] = 'x';
+            case 2 -> this.board[row][col] = 'o';
         }
     }
 
@@ -64,15 +61,32 @@ public class GameService {
         }
 
         boolean allSame = false;
+
         for (int i = 0; i < 3; i++)
         {
+            //seeing if all characters in the row are the same
             allSame = true;
             char lastChar = this.board[i][0];
             for (int j = 1; j < 3; j++) {
-                if (this.board[i][j] != lastChar)
-                {
+                if (this.board[i][j] != lastChar) {
                     allSame = false;
                 }
+            }
+            if (allSame) {
+                return allSame;
+            }
+
+            //check if all characters in column are the same
+            allSame = true;
+            lastChar = this.board[0][i];
+            for (int j = 1; j < 3; j++) {
+                if (this.board[j][i] != lastChar) {
+                    allSame = false;
+                }
+            }
+
+            if (allSame) {
+                return allSame;
             }
         }
 
