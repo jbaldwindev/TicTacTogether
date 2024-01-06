@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom';
 import HelloWorldService from '../services/HelloWorldService'
+import GameService from '../services/GameService'
 import './styles/Board.css'
 
 const ViewMessageComponent = (props) => {
@@ -12,6 +13,11 @@ const ViewMessageComponent = (props) => {
     const startResetClick = () => {
         if (buttonText.toLowerCase() == "start game") {
             setButtonText("Reset");
+            // HelloWorldService.getMessage().then((response) => {
+            //     setButtonText(response.data);
+            // }).catch(() => {
+            //     alert("An Error Occurred Setting the button Text");
+            // });
         } else {
             var spaces = document.getElementsByClassName('space');
             for (var i = 0; i < spaces.length; i++) {
@@ -23,8 +29,20 @@ const ViewMessageComponent = (props) => {
     }
 
     const fillSpace = (e) => {
-        console.log(e)
-        e.target.innerText = "HELP"
+        if (playerTurnText.includes("1")) {
+            if (e.target.innerText == "") {
+                e.target.innerText = "X";
+                setPlayerTurnText("Player 2's Turn");
+                GameService.postMove("1");
+            }
+        } else {
+            if (e.target.innerText == "") {
+                e.target.innerText = "O";
+                setPlayerTurnText("Player 1's Turn");
+                GameService.postMove("2");
+            }
+
+        }
     }
 
     return (
@@ -35,19 +53,19 @@ const ViewMessageComponent = (props) => {
                 <table>
                     <tbody>
                         <tr>
-                            <td className="space" onClick={(e) => fillSpace(e)}></td>
-                            <td className="space" onClick={(e) => fillSpace(e)}></td>
-                            <td className="space" onClick={(e) => fillSpace(e)}></td>
+                            <td id="1" className="space" onClick={(e) => fillSpace(e)}></td>
+                            <td id="2" className="space" onClick={(e) => fillSpace(e)}></td>
+                            <td id="3" className="space" onClick={(e) => fillSpace(e)}></td>
                         </tr>
                         <tr>
-                            <td className="space" onClick={(e) => fillSpace(e)}></td>
-                            <td className="space" onClick={(e) => fillSpace(e)}></td>
-                            <td className="space" onClick={(e) => fillSpace(e)}></td>
+                            <td id="4" className="space" onClick={(e) => fillSpace(e)}></td>
+                            <td id="5" className="space" onClick={(e) => fillSpace(e)}></td>
+                            <td id="6" className="space" onClick={(e) => fillSpace(e)}></td>
                         </tr>
                         <tr>
-                            <td className="space" onClick={(e) => fillSpace(e)}></td>
-                            <td className="space" onClick={(e) => fillSpace(e)}></td>
-                            <td className="space" onClick={(e) => fillSpace(e)}></td>
+                            <td id="7" className="space" onClick={(e) => fillSpace(e)}></td>
+                            <td id="8" className="space" onClick={(e) => fillSpace(e)}></td>
+                            <td id="9" className="space" onClick={(e) => fillSpace(e)}></td>
                         </tr>
                     </tbody>
                 </table>
