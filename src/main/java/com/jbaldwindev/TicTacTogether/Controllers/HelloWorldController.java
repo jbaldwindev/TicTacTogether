@@ -16,10 +16,14 @@ public class HelloWorldController
 
     @PostMapping("/move")
     public void move(@RequestBody String playerNum) {
-        PlayerMove pMove = new ObjectMapper().readValue(playerNum, PlayerMove.class);
+        try {
+            PlayerMove pMove = new ObjectMapper().readValue(playerNum, PlayerMove.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-    public class PlayerMove {
-        String playerNumber;
-        String spaceNumber;
+    public static class PlayerMove {
+        public String playerNumber;
+        public String spaceNumber;
     }
 }

@@ -33,13 +33,13 @@ const ViewMessageComponent = (props) => {
             if (e.target.innerText == "") {
                 e.target.innerText = "X";
                 setPlayerTurnText("Player 2's Turn");
-                GameService.postMove("1");
+                GameService.postMove("1", e.target.id.toString());
             }
         } else {
             if (e.target.innerText == "") {
                 e.target.innerText = "O";
                 setPlayerTurnText("Player 1's Turn");
-                GameService.postMove("2");
+                GameService.postMove("2",  e.target.id.toString());
             }
 
         }
