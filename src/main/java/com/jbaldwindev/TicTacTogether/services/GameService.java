@@ -10,7 +10,8 @@ import java.util.ArrayList;
 //fill space
 //check win
 //if win, EndGame
-//else if
+//else
+//change turn
 @Service("gameService")
 public class GameService {
     private char[][] board = new char[3][3];
@@ -25,12 +26,15 @@ public class GameService {
     }
 
     public void SetBoard() {
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board.length; j++)
-            {
-                this.board[i][j] = 'z';
-            }
-        }
+        this.board[0][0] = 'q';
+        this.board[0][1] = 'w';
+        this.board[0][2] = 'e';
+        this.board[1][0] = 'r';
+        this.board[1][1] = 't';
+        this.board[1][2] = 'y';
+        this.board[2][0] = 'u';
+        this.board[2][1] = 'i';
+        this.board[2][2] = 'p';
     }
 
     public void RestartGame() {
@@ -39,6 +43,27 @@ public class GameService {
     }
 
     public void FillSpace(int playerTurn, int row, int col) {
+        switch (playerTurn) {
+            case 1 -> this.board[row][col] = 'x';
+            case 2 -> this.board[row][col] = 'o';
+        }
+    }
+
+    public void FillSpace(int playerTurn, int spaceNum) {
+        int row;
+        int col;
+        if (spaceNum < 4) {
+            row = 1;
+            col = spaceNum;
+        } else if (spaceNum < 7) {
+            row = 2;
+            col = spaceNum - 3;
+        } else {
+            row = 3;
+            col = spaceNum - 6;
+        }
+        row -= 1;
+        col -= 1;
         switch (playerTurn) {
             case 1 -> this.board[row][col] = 'x';
             case 2 -> this.board[row][col] = 'o';

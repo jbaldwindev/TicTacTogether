@@ -9,6 +9,10 @@ class GameService {
             spaceNumber: spaceNumber
         });
     }
+
+    postReset() {
+        return axios.post(USER_API_BASE_URL + 'reset')
+    }
 }
 
 export default new GameService;

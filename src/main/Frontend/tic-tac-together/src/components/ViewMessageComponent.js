@@ -13,11 +13,6 @@ const ViewMessageComponent = (props) => {
     const startResetClick = () => {
         if (buttonText.toLowerCase() == "start game") {
             setButtonText("Reset");
-            // HelloWorldService.getMessage().then((response) => {
-            //     setButtonText(response.data);
-            // }).catch(() => {
-            //     alert("An Error Occurred Setting the button Text");
-            // });
         } else {
             var spaces = document.getElementsByClassName('space');
             for (var i = 0; i < spaces.length; i++) {
@@ -25,23 +20,37 @@ const ViewMessageComponent = (props) => {
             }
             setPlayerTurnText("Player 1's Turn");
             setButtonText("Start Game");
+            GameService.postReset();
         }
     }
 
     const fillSpace = (e) => {
-        if (playerTurnText.includes("1")) {
-            if (e.target.innerText == "") {
-                e.target.innerText = "X";
-                setPlayerTurnText("Player 2's Turn");
-                GameService.postMove("1", e.target.id.toString());
+        let resData;
+        if (buttonText.toLowerCase() == "reset") {
+            if (playerTurnText.includes("1")) {
+                if (e.target.innerText == "") {
+                    e.target.innerText = "X";
+                    setPlayerTurnText("Player 2's Turn");
+                    GameService.postMove("1", e.target.id.toString()).then((response) => {
+                        resData = response.data;
+                        console.log(resData)
+                    }).catch(() => {
+                        alert("Error processing move");
+                    });
+                }
+            } else {
+                if (e.target.innerText == "") {
+                    e.target.innerText = "O";
+                    setPlayerTurnText("Player 1's Turn");
+                    GameService.postMove("2",  e.target.id.toString()).then((response) => {
+                        resData = response.data;
+                        console.log(resData)
+                    }).catch(() => {
+                        alert("Error processing move");
+                    });
+                }
+    
             }
-        } else {
-            if (e.target.innerText == "") {
-                e.target.innerText = "O";
-                setPlayerTurnText("Player 1's Turn");
-                GameService.postMove("2",  e.target.id.toString());
-            }
-
         }
     }
 
