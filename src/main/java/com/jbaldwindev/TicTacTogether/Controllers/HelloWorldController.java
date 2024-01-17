@@ -1,11 +1,15 @@
 package com.jbaldwindev.TicTacTogether.Controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.jbaldwindev.TicTacTogether.models.MoveData;
 import com.jbaldwindev.TicTacTogether.services.GameService;
 import org.bson.json.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", maxAge = 4800)
@@ -47,6 +51,13 @@ public class HelloWorldController
         gameService.RestartGame();
         return new ResponseEntity<>("reset successful", HttpStatus.OK);
     }
+
+    @MessageMapping("/move")
+    @SendTo("/topic/playermoved")
+    public MoveData sendMove(@Payload MoveData moveData) {
+        return moveData;
+    }
+
     public static class PlayerMove {
         public String playerNumber;
         public String spaceNumber;
