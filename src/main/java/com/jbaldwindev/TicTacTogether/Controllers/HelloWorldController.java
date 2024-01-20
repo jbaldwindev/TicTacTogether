@@ -58,6 +58,13 @@ public class HelloWorldController
         return moveData;
     }
 
+    @MessageMapping("/addplayer")
+    @SendTo("/topic/playeradded")
+    public int addPlayer() {
+        System.out.println("Made it back to server");
+        return gameService.AddPlayer();
+    }
+
     public static class PlayerMove {
         public String playerNumber;
         public String spaceNumber;

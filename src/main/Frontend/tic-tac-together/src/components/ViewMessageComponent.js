@@ -13,7 +13,9 @@ const ViewMessageComponent = (props) => {
     const [moveList, setMoveList] = useState([]);
     const [stompClient, setStompClient] = useState(null);
     const [displayMessage, setDisplayMessage] = useState("");
-    const [playerID, setPlayerID] = useState();
+    //-2 is unassigned player, -1 spectator
+    const [playerID, setPlayerID] = useState(-2);
+    const [receivedPlayerID, setReceivedPlayerID] = useState(-2);
     const [spaceClicked, setSpaceClicked] = useState();
 
 
@@ -31,7 +33,6 @@ const ViewMessageComponent = (props) => {
         }
     }
 
-    //topic/playermoved
     useEffect(() => {
         const socket = new SockJS('http:/localhost:8080/ws');
         const client = Stomp.over(socket);
@@ -44,18 +45,44 @@ const ViewMessageComponent = (props) => {
                 setMoveList((prevMoveList) => [...prevMoveList, receivedMessage]);
                 setDisplayMessage(receivedMessage);
             });
+
+            //TODO subscribe to endpoint that returns assigned ID
+            client.subscribe('/topic/playeradded', (playerNum) => {
+                const pnum = Number(playerNum.body);
+                setReceivedPlayerID(pnum);
+            });
+            //assignPlayerID();
         });
-
         setStompClient(client);
-
-        // return () => {
-        //     client.disconnect();
-        // }
+        //assignPlayerID();
     }, []);
+
+    useEffect(() => {
+        if (playerID == -2 ) {
+            setPlayerID(receivedPlayerID);
+        }
+    }, [receivedPlayerID]);
+
+    useEffect(() => {
+        console.log("THIS PLAYER'S ID:");
+        console.log(playerID);
+    }, [playerID]);
+
+    useEffect(() => {
+        if (stompClient != null) {
+            setTimeout(assignPlayerID, 3000);
+        }
+    }, [stompClient]);
+
+    //todo send request to get the ID
+    const assignPlayerID = () => {
+        console.log("THIS IS BEING HIT");
+        stompClient?.send("/app/addplayer");
+    }
 
     const sendMove = () => {
         const moveData = {
-            userId: 87,
+            userId: playerID,
             spaceNumber: 99
         }
         stompClient.send("/app/move", {} ,JSON.stringify(moveData));
@@ -86,7 +113,6 @@ const ViewMessageComponent = (props) => {
                         alert("Error processing move");
                     });
                 }
-    
             }
         }
     }

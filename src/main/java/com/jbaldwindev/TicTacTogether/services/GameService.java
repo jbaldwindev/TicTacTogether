@@ -16,11 +16,14 @@ import java.util.ArrayList;
 public class GameService {
     private char[][] board = new char[3][3];
     private int playerTurn;
+    private Boolean[] playerJoined = new Boolean[2];
     private int winner;
 
     @PostConstruct
     public void InitGameService()
     {
+        playerJoined[0] = false;
+        playerJoined[1] = false;
         playerTurn = 1;
         SetBoard();
     }
@@ -121,5 +124,17 @@ public class GameService {
     public void EndGame() {
         this.winner = this.playerTurn;
         System.out.println("Player " + this.winner + " wins");
+    }
+
+    public int AddPlayer() {
+        if (!playerJoined[0]) {
+            playerJoined[0] = true;
+            return 1;
+        } else if (!playerJoined[1]) {
+            playerJoined[1] = true;
+            return 2;
+        } else {
+            return -1;
+        }
     }
 }
