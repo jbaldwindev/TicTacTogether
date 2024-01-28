@@ -55,14 +55,54 @@ public class HelloWorldController
     @MessageMapping("/move")
     @SendTo("/topic/playermoved")
     public MoveData sendMove(@Payload MoveData moveData) {
+        try {
+            if (gameService.hasGameStarted() && (gameService.getPlayerTurn() == moveData.getUserId())) {
+                gameService.FillSpace(moveData.getUserId(), moveData.getSpaceNumber());
+                return moveData;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        MoveData falseMoveData = new MoveData(-99,-99);
         return moveData;
     }
 
     @MessageMapping("/addplayer")
     @SendTo("/topic/playeradded")
     public int addPlayer() {
-        System.out.println("Made it back to server");
         return gameService.AddPlayer();
+    }
+
+    @MessageMapping("/startgame")
+    @SendTo("/topic/gamestarted")
+    public String startGameSocket() {
+        gameService.StartGame();
+        return "gamestarted";
+    }
+
+    @MessageMapping("/resetgame")
+    @SendTo("/topic/gamereset")
+    public String resetSocket() {
+        gameService.RestartGame();
+        return "reset";
+    }
+
+    @MessageMapping("/changeturn")
+    @SendTo("/topic/turnchanged")
+    public String changeTurn() {
+        gameService.ChangeTurn();
+        return "turn";
+    }
+
+    @MessageMapping("/checkwin")
+    @SendTo("/topic/winstatus")
+    public String checkWin() {
+        if (gameService.CheckWin()) {
+            return "win";
+        } else {
+            return "continue";
+        }
     }
 
     public static class PlayerMove {

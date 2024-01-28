@@ -1,23 +1,27 @@
 package com.jbaldwindev.TicTacTogether.services;
 
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
 //SetBoard
+//start game
 //prompt space to fill
 //fill space
 //check win
-//if win, EndGame
+//if win, EndGame/reset
 //else
 //change turn
 @Service("gameService")
 public class GameService {
     private char[][] board = new char[3][3];
+    @Getter
     private int playerTurn;
     private Boolean[] playerJoined = new Boolean[2];
     private int winner;
+    private boolean gameStarted;
 
     @PostConstruct
     public void InitGameService()
@@ -25,6 +29,7 @@ public class GameService {
         playerJoined[0] = false;
         playerJoined[1] = false;
         playerTurn = 1;
+        gameStarted = false;
         SetBoard();
     }
 
@@ -40,7 +45,20 @@ public class GameService {
         this.board[2][2] = 'p';
     }
 
+    public void StartGame() {
+        if (!gameStarted) {
+            gameStarted = true;
+        }
+    }
+
+    public Boolean hasGameStarted() {
+        return this.gameStarted;
+    }
+
     public void RestartGame() {
+        if (gameStarted) {
+            gameStarted = false;
+        }
         SetBoard();
         playerTurn = 1;
     }

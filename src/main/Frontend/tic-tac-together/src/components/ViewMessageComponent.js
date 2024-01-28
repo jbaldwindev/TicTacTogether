@@ -9,6 +9,8 @@ import './styles/Board.css'
 const ViewMessageComponent = (props) => {
     const [buttonText, setButtonText] = useState("Start Game");
     const [playerTurnText, setPlayerTurnText] = useState("Player 1's Turn");
+    //TODO make sure this gets set and changed
+    const [playerTurn, setPlayerTurn] = useState(1);
     const [resetText] = useState("");
     const [moveList, setMoveList] = useState([]);
     const [stompClient, setStompClient] = useState(null);
@@ -16,45 +18,95 @@ const ViewMessageComponent = (props) => {
     //-2 is unassigned player, -1 spectator
     const [playerID, setPlayerID] = useState(-2);
     const [receivedPlayerID, setReceivedPlayerID] = useState(-2);
-    const [spaceClicked, setSpaceClicked] = useState();
-
+    const [spaceClicked, setSpaceClicked] = useState(0);
+    const [gameStatus, setGameStatus] = useState("reset");
 
     const startResetClick = () => {
         if (buttonText.toLowerCase() == "start game") {
-            setButtonText("Reset");
+            stompClient?.send("/app/startgame");
         } else {
-            var spaces = document.getElementsByClassName('space');
-            for (var i = 0; i < spaces.length; i++) {
-                spaces[i].innerText = " ";
-            }
-            setPlayerTurnText("Player 1's Turn");
-            setButtonText("Start Game");
-            GameService.postReset();
+            stompClient?.send("/app/resetgame")
         }
     }
 
+    const resetBoard = () => {
+        var spaces = document.getElementsByClassName('space');
+        for (var i = 0; i < spaces.length; i++) {
+            spaces[i].innerText = " ";
+        }
+    }
+
+    //TODO update move functions
+    //TODO use changeturn function
+    //TODO use checkwin function
     useEffect(() => {
         const socket = new SockJS('http:/localhost:8080/ws');
         const client = Stomp.over(socket);
 
         client.connect({}, () => {
+
+            //TODO trigger next step (check win)
             client.subscribe('/topic/playermoved', (message) => {
                 const receivedMessage = JSON.parse(message.body);
                 console.log("MESSAGE HAS BEEN RECEIVED: ");
                 console.log(receivedMessage);
                 setMoveList((prevMoveList) => [...prevMoveList, receivedMessage]);
                 setDisplayMessage(receivedMessage);
+                console.log("RECEIVED SPACE NUMBER:");
+                console.log(receivedMessage.spaceNumber.toString());
+                const space = document.getElementById(receivedMessage.spaceNumber.toString());
+                if (receivedMessage.userId == 1) {
+                    space.innerText = "X";
+                } else if (receivedMessage.userId == 2) {
+                    space.innerText = "O";
+                }
+                if (playerTurn == playerID) {
+                    checkWin();
+                }
             });
 
-            //TODO subscribe to endpoint that returns assigned ID
             client.subscribe('/topic/playeradded', (playerNum) => {
                 const pnum = Number(playerNum.body);
                 setReceivedPlayerID(pnum);
             });
-            //assignPlayerID();
+
+            client.subscribe("/topic/gamestarted", () => {
+                setGameStatus("started");
+                setButtonText("Reset");
+                setPlayerTurnText("Player 1's Turn");
+                setPlayerTurn(1);
+                setMoveList([]);
+            });
+
+            client.subscribe("/topic/gamereset", () => {
+                setGameStatus("reset");
+                resetBoard();
+                setPlayerTurnText("Player 1's Turn");
+                setButtonText("Start Game");
+                setMoveList([]);
+            });
+
+            client.subscribe("/topic/turnchanged", () => {
+                if (playerTurn == 1) {
+                    setPlayerTurnText("Player 2's Turn");
+                    setPlayerTurn(2);
+                } else if (playerTurn == 2) {
+                    setPlayerTurnText("Player 1's Turn");
+                    setPlayerTurn(1);
+                }
+            });
+
+            client.subscribe("/topic/winstatus", (message) => {
+                if (message == "win") {
+                    winGame();
+                } else if (message == "continue") {
+                    if (playerID == playerTurn) {
+                        changeTurn();
+                    }
+                }
+            });
         });
         setStompClient(client);
-        //assignPlayerID();
     }, []);
 
     useEffect(() => {
@@ -74,44 +126,48 @@ const ViewMessageComponent = (props) => {
         }
     }, [stompClient]);
 
-    //todo send request to get the ID
+    useEffect(() => {
+        sendMove();
+    }, [spaceClicked]);
+
     const assignPlayerID = () => {
-        console.log("THIS IS BEING HIT");
         stompClient?.send("/app/addplayer");
     }
 
     const sendMove = () => {
         const moveData = {
             userId: playerID,
-            spaceNumber: 99
+            spaceNumber: spaceClicked
         }
-        stompClient.send("/app/move", {} ,JSON.stringify(moveData));
+
+        if (moveData.spaceNumber > 0) {
+            stompClient.send("/app/move", {} ,JSON.stringify(moveData));
+        }
     }
 
+    const checkWin = () => {
+        stompClient.send("/app/checkwin");
+    }
+
+    //TODO flesh out
+    const winGame = () => {
+        setPlayerTurnText("Player " + playerTurn.toString()  + " Won!");
+        setGameStatus("over");
+    }
+
+    const changeTurn = () => {
+        stompClient.send("/app/changeturn");
+    }
+
+    //TODO only fill the space after the response is received
+    //This function should send the message, another should do the actual filling depending on result
+    //The other function should handle the filling, checking if won, changing of turn, etc
     const fillSpace = (e) => {
-        let resData;
-        if (buttonText.toLowerCase() == "reset") {
-            if (playerTurnText.includes("1")) {
+        if (gameStatus == "started") {
+            if (playerTurn == playerID) {
                 if (e.target.innerText == "") {
-                    e.target.innerText = "X";
-                    setPlayerTurnText("Player 2's Turn");
-                    GameService.postMove("1", e.target.id.toString()).then((response) => {
-                        resData = response.data;
-                        console.log(resData);
-                    }).catch(() => {
-                        alert("Error processing move");
-                    });
-                }
-            } else {
-                if (e.target.innerText == "") {
-                    e.target.innerText = "O";
-                    setPlayerTurnText("Player 1's Turn");
-                    GameService.postMove("2",  e.target.id.toString()).then((response) => {
-                        resData = response.data;
-                        console.log(resData);
-                    }).catch(() => {
-                        alert("Error processing move");
-                    });
+                    let newSpace = parseInt(e.target.id);
+                    setSpaceClicked(newSpace);
                 }
             }
         }
