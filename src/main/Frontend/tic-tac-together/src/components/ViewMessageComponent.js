@@ -8,9 +8,9 @@ import './styles/Board.css'
 
 const ViewMessageComponent = (props) => {
     const [buttonText, setButtonText] = useState("Start Game");
-    const [playerTurnText, setPlayerTurnText] = useState("Player 1's Turn");
+    const [playerTurnText, setPlayerTurnText] = useState("Player 2's Turn");
     //TODO make sure this gets set and changed
-    const [playerTurn, setPlayerTurn] = useState(1);
+    const [playerTurn, setPlayerTurn] = useState(2);
     const [resetText] = useState("");
     const [moveList, setMoveList] = useState([]);
     const [stompClient, setStompClient] = useState(null);
@@ -20,6 +20,9 @@ const ViewMessageComponent = (props) => {
     const [receivedPlayerID, setReceivedPlayerID] = useState(-2);
     const [spaceClicked, setSpaceClicked] = useState(0);
     const [gameStatus, setGameStatus] = useState("reset");
+    const [checkForWin, setCheckForWin] = useState(true);
+    const [changePlayerTurn, setChangePlayerTurn] = useState("");
+    const [receivedTurnChange, setReceivedTurnChange] = useState(-1);
 
     const startResetClick = () => {
         if (buttonText.toLowerCase() == "start game") {
@@ -48,20 +51,14 @@ const ViewMessageComponent = (props) => {
             //TODO trigger next step (check win)
             client.subscribe('/topic/playermoved', (message) => {
                 const receivedMessage = JSON.parse(message.body);
-                console.log("MESSAGE HAS BEEN RECEIVED: ");
-                console.log(receivedMessage);
                 setMoveList((prevMoveList) => [...prevMoveList, receivedMessage]);
                 setDisplayMessage(receivedMessage);
-                console.log("RECEIVED SPACE NUMBER:");
                 console.log(receivedMessage.spaceNumber.toString());
                 const space = document.getElementById(receivedMessage.spaceNumber.toString());
                 if (receivedMessage.userId == 1) {
                     space.innerText = "X";
                 } else if (receivedMessage.userId == 2) {
                     space.innerText = "O";
-                }
-                if (playerTurn == playerID) {
-                    checkWin();
                 }
             });
 
@@ -86,34 +83,61 @@ const ViewMessageComponent = (props) => {
                 setMoveList([]);
             });
 
-            client.subscribe("/topic/turnchanged", () => {
-                if (playerTurn == 1) {
-                    setPlayerTurnText("Player 2's Turn");
-                    setPlayerTurn(2);
-                } else if (playerTurn == 2) {
-                    setPlayerTurnText("Player 1's Turn");
-                    setPlayerTurn(1);
-                }
+            client.subscribe("/topic/turnchanged", (message) => {
+                //TODO change this so it works
+                setReceivedTurnChange(Number(message.body));
             });
 
             client.subscribe("/topic/winstatus", (message) => {
-                if (message == "win") {
+                console.log("received win message");
+                const receivedMessage = JSON.parse(message.body);
+                if (receivedMessage.winResponse == "win") {
+                    console.log("The game should be over");
                     winGame();
-                } else if (message == "continue") {
-                    if (playerID == playerTurn) {
-                        changeTurn();
-                    }
+                } else if (receivedMessage.winResponse == "continue") {
+                    //TODO replace this with setting a variable based on something found in the message
+                    //probably should make the message an object
+                    console.log("win message was continue");
+                    setChangePlayerTurn(receivedMessage.winResponse + " " + receivedMessage.userId.toString());
                 }
             });
         });
+
         setStompClient(client);
     }, []);
+
+    useEffect(() => {
+        console.log("PLAYER TURN HERE IS: " + playerTurn);
+        console.log("PLAYER ID HERE IS: " + playerID);
+        if (playerTurn == playerID) {
+            console.log("Checking for a win");
+            checkWin();
+        }
+    }, [moveList]);
 
     useEffect(() => {
         if (playerID == -2 ) {
             setPlayerID(receivedPlayerID);
         }
     }, [receivedPlayerID]);
+
+    useEffect(() => {
+        if (playerTurn == 1) {
+            setPlayerTurnText("Player 2's Turn");
+            setPlayerTurn(2);
+        } else if (playerTurn == 2) {
+            setPlayerTurnText("Player 1's Turn");
+            setPlayerTurn(1);
+        }
+    }, [receivedTurnChange]);
+
+    useEffect(() => {
+        console.log("game not over");
+        if (playerID == playerTurn) {
+            console.log("Turn being changed");
+            changeTurn();
+        }
+    }, [changePlayerTurn]);
 
     useEffect(() => {
         console.log("THIS PLAYER'S ID:");
@@ -146,7 +170,11 @@ const ViewMessageComponent = (props) => {
     }
 
     const checkWin = () => {
-        stompClient.send("/app/checkwin");
+        const winResponseData = {
+            userId: playerID,
+            winResponse: "N/A"
+        }
+        stompClient.send("/app/checkwin", {}, JSON.stringify(winResponseData));
     }
 
     //TODO flesh out

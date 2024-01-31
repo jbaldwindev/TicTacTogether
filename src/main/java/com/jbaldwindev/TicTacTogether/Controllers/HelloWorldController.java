@@ -2,6 +2,7 @@ package com.jbaldwindev.TicTacTogether.Controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.jbaldwindev.TicTacTogether.models.MoveData;
+import com.jbaldwindev.TicTacTogether.models.WinResponseData;
 import com.jbaldwindev.TicTacTogether.services.GameService;
 import org.bson.json.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ public class HelloWorldController
     public String hello() {
         return "Hello World";
     }
+
+    private int turn = 0;
 
     @PostMapping("/move")
     public ResponseEntity<String> move(@RequestBody String playerNum) {
@@ -90,19 +93,25 @@ public class HelloWorldController
 
     @MessageMapping("/changeturn")
     @SendTo("/topic/turnchanged")
-    public String changeTurn() {
+    public int changeTurn() {
         gameService.ChangeTurn();
-        return "turn";
+        turn += 1;
+        return turn;
     }
 
     @MessageMapping("/checkwin")
     @SendTo("/topic/winstatus")
-    public String checkWin() {
+    public WinResponseData checkWin(@Payload WinResponseData winResponseData) {
+        WinResponseData updatedData = winResponseData;
         if (gameService.CheckWin()) {
-            return "win";
+            //TODO remove
+            System.out.println("sending a win message");
+            updatedData.setWinResponse("win");
         } else {
-            return "continue";
+            System.out.println("sending a continue message");
+            updatedData.setWinResponse("continue");
         }
+        return updatedData;
     }
 
     public static class PlayerMove {
