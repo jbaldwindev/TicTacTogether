@@ -10,4 +10,5 @@ import lombok.ToString;
 public class WinResponseData {
     private int userId;
     private String winResponse;
+    private int turnIncrement;
 }

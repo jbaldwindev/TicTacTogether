@@ -23,6 +23,7 @@ const ViewMessageComponent = (props) => {
     const [checkForWin, setCheckForWin] = useState(true);
     const [changePlayerTurn, setChangePlayerTurn] = useState("");
     const [receivedTurnChange, setReceivedTurnChange] = useState(-1);
+    const [triggerPlayerWin, setTriggerPlayerWin] = useState(0);
 
     const startResetClick = () => {
         if (buttonText.toLowerCase() == "start game") {
@@ -72,19 +73,21 @@ const ViewMessageComponent = (props) => {
                 setButtonText("Reset");
                 setPlayerTurnText("Player 1's Turn");
                 setPlayerTurn(1);
-                setMoveList([]);
+                //setMoveList([]);
             });
 
             client.subscribe("/topic/gamereset", () => {
                 setGameStatus("reset");
                 resetBoard();
                 setPlayerTurnText("Player 1's Turn");
+                setPlayerTurn(1);
                 setButtonText("Start Game");
-                setMoveList([]);
+                //setMoveList([]);
             });
 
             client.subscribe("/topic/turnchanged", (message) => {
                 //TODO change this so it works
+                console.log("Turn has changed");
                 setReceivedTurnChange(Number(message.body));
             });
 
@@ -93,12 +96,13 @@ const ViewMessageComponent = (props) => {
                 const receivedMessage = JSON.parse(message.body);
                 if (receivedMessage.winResponse == "win") {
                     console.log("The game should be over");
-                    winGame();
+                    setTriggerPlayerWin(t => t + 1);
                 } else if (receivedMessage.winResponse == "continue") {
                     //TODO replace this with setting a variable based on something found in the message
                     //probably should make the message an object
                     console.log("win message was continue");
-                    setChangePlayerTurn(receivedMessage.winResponse + " " + receivedMessage.userId.toString());
+                    console.log(receivedMessage.winResponse + " " + receivedMessage.userId.toString() + receivedMessage.turnIncrement.toString());
+                    setChangePlayerTurn(receivedMessage.winResponse + " " + receivedMessage.userId.toString() + receivedMessage.turnIncrement.toString());
                 }
             });
         });
@@ -116,6 +120,10 @@ const ViewMessageComponent = (props) => {
     }, [moveList]);
 
     useEffect(() => {
+        winGame();
+    }, [triggerPlayerWin]);
+
+    useEffect(() => {
         if (playerID == -2 ) {
             setPlayerID(receivedPlayerID);
         }
@@ -123,6 +131,7 @@ const ViewMessageComponent = (props) => {
 
     useEffect(() => {
         if (playerTurn == 1) {
+
             setPlayerTurnText("Player 2's Turn");
             setPlayerTurn(2);
         } else if (playerTurn == 2) {
@@ -172,7 +181,8 @@ const ViewMessageComponent = (props) => {
     const checkWin = () => {
         const winResponseData = {
             userId: playerID,
-            winResponse: "N/A"
+            winResponse: "N/A",
+            turnIncrement: 0
         }
         stompClient.send("/app/checkwin", {}, JSON.stringify(winResponseData));
     }

@@ -51,6 +51,12 @@ public class GameService {
         }
     }
 
+    public void printBoard() {
+        for (int i = 0; i < 3; i++) {
+            System.out.println(this.board[i][0] + " " + this.board[i][1] + " " + this.board[i][2]);
+        }
+    }
+
     public Boolean hasGameStarted() {
         return this.gameStarted;
     }

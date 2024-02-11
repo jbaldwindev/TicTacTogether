@@ -26,6 +26,8 @@ public class HelloWorldController
     }
 
     private int turn = 0;
+    private int winIncrement = 0;
+    private int turnChangeIncrement = 0;
 
     @PostMapping("/move")
     public ResponseEntity<String> move(@RequestBody String playerNum) {
@@ -61,6 +63,7 @@ public class HelloWorldController
         try {
             if (gameService.hasGameStarted() && (gameService.getPlayerTurn() == moveData.getUserId())) {
                 gameService.FillSpace(moveData.getUserId(), moveData.getSpaceNumber());
+                gameService.printBoard();
                 return moveData;
             }
         } catch (Exception e) {
@@ -103,6 +106,8 @@ public class HelloWorldController
     @SendTo("/topic/winstatus")
     public WinResponseData checkWin(@Payload WinResponseData winResponseData) {
         WinResponseData updatedData = winResponseData;
+        turnChangeIncrement += 1;
+        updatedData.setTurnIncrement(updatedData.getTurnIncrement() + turnChangeIncrement);
         if (gameService.CheckWin()) {
             //TODO remove
             System.out.println("sending a win message");
