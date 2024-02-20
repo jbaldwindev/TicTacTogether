@@ -1,10 +1,17 @@
+import RoomSelectComponent from './components/RoomSelectComponent';
 import ViewMessageComponent from './components/ViewMessageComponent';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 function App() {
   return (
-    <div>
-      <ViewMessageComponent/>
-    </div>
+    <Router>
+      <div>
+        <Routes>
+          <Route exact path="/" element={<RoomSelectComponent/>}/>
+          <Route exact path="/room" element={<ViewMessageComponent/>}/>
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
