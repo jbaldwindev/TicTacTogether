@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom';
 import HelloWorldService from '../services/HelloWorldService'
 import GameService from '../services/GameService'
+import { useParams } from 'react-router-dom';
 import Stomp from 'stompjs';
 import SockJS from 'sockjs-client';
 import './styles/Board.css'
@@ -24,6 +25,7 @@ const ViewMessageComponent = (props) => {
     const [changePlayerTurn, setChangePlayerTurn] = useState("");
     const [receivedTurnChange, setReceivedTurnChange] = useState(-1);
     const [triggerPlayerWin, setTriggerPlayerWin] = useState(0);
+    const componentParams = useParams();
 
     const startResetClick = () => {
         if (buttonText.toLowerCase() == "start game") {
@@ -40,16 +42,11 @@ const ViewMessageComponent = (props) => {
         }
     }
 
-    //TODO update move functions
-    //TODO use changeturn function
-    //TODO use checkwin function
     useEffect(() => {
         const socket = new SockJS('http:/localhost:8080/ws');
         const client = Stomp.over(socket);
 
         client.connect({}, () => {
-
-            //TODO trigger next step (check win)
             client.subscribe('/topic/playermoved', (message) => {
                 const receivedMessage = JSON.parse(message.body);
                 setMoveList((prevMoveList) => [...prevMoveList, receivedMessage]);
@@ -73,7 +70,6 @@ const ViewMessageComponent = (props) => {
                 setButtonText("Reset");
                 setPlayerTurnText("Player 1's Turn");
                 setPlayerTurn(1);
-                //setMoveList([]);
             });
 
             client.subscribe("/topic/gamereset", () => {
@@ -82,11 +78,9 @@ const ViewMessageComponent = (props) => {
                 setPlayerTurnText("Player 1's Turn");
                 setPlayerTurn(1);
                 setButtonText("Start Game");
-                //setMoveList([]);
             });
 
             client.subscribe("/topic/turnchanged", (message) => {
-                //TODO change this so it works
                 console.log("Turn has changed");
                 setReceivedTurnChange(Number(message.body));
             });
@@ -98,8 +92,6 @@ const ViewMessageComponent = (props) => {
                     console.log("The game should be over");
                     setTriggerPlayerWin(t => t + 1);
                 } else if (receivedMessage.winResponse == "continue") {
-                    //TODO replace this with setting a variable based on something found in the message
-                    //probably should make the message an object
                     console.log("win message was continue");
                     console.log(receivedMessage.winResponse + " " + receivedMessage.userId.toString() + receivedMessage.turnIncrement.toString());
                     setChangePlayerTurn(receivedMessage.winResponse + " " + receivedMessage.userId.toString() + receivedMessage.turnIncrement.toString());
@@ -187,7 +179,6 @@ const ViewMessageComponent = (props) => {
         stompClient.send("/app/checkwin", {}, JSON.stringify(winResponseData));
     }
 
-    //TODO flesh out
     const winGame = () => {
         setPlayerTurnText("Player " + playerTurn.toString()  + " Won!");
         setGameStatus("over");
@@ -197,9 +188,6 @@ const ViewMessageComponent = (props) => {
         stompClient.send("/app/changeturn");
     }
 
-    //TODO only fill the space after the response is received
-    //This function should send the message, another should do the actual filling depending on result
-    //The other function should handle the filling, checking if won, changing of turn, etc
     const fillSpace = (e) => {
         if (gameStatus == "started") {
             if (playerTurn == playerID) {
@@ -218,6 +206,7 @@ const ViewMessageComponent = (props) => {
             <div className="Board">
             <h1>Player that moved: {displayMessage.userId} </h1>
             <h1>Space moved to: {displayMessage.spaceNumber}</h1>
+            {componentParams.roomId ? <h1> This rooms ID: {componentParams.roomId}</h1> : <h1>This room has no ID</h1>}
                 <table>
                     <tbody>
                         <tr>

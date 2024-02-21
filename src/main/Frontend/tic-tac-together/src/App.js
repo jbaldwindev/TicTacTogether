@@ -9,6 +9,7 @@ function App() {
         <Routes>
           <Route exact path="/" element={<RoomSelectComponent/>}/>
           <Route exact path="/room" element={<ViewMessageComponent/>}/>
+          <Route exact path="/room/:roomId" element={<ViewMessageComponent/>}/>
         </Routes>
       </div>
     </Router>
