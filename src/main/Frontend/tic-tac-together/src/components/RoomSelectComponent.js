@@ -1,7 +1,9 @@
 import {useNavigate} from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
-import './styles/Home.css'
-//TODO add "create room" button
+import './styles/Home.css';
+import '../services/RoomService';
+import RoomService from '../services/RoomService';
+//TODO
 //make it so that when a room is created, it posts to the server so that
 //other people loading the site will be able to see and join the room
 //the server should create an ID number for this room, and send this back to the client
@@ -26,9 +28,13 @@ const RoomSelectComponent = (props) => {
     //send a request to the server, then when it sends back the id
     //add a button with that ID
     const addRoom = () => {
-        const lastID = roomButtonList[roomButtonList.length - 1];
-        const newButtonID = lastID + 1;
-        setRoomButtonList([...roomButtonList, newButtonID]);
+        RoomService.PostAddRoom().then((response) => {
+            const newRoomID = parseInt(response.data);
+            setRoomButtonList([...roomButtonList, newRoomID]);
+        });
+        // const lastID = roomButtonList[roomButtonList.length - 1];
+        // const newButtonID = lastID + 1;
+        // setRoomButtonList([...roomButtonList, newButtonID]);
     }
 
     //TODO remove this
