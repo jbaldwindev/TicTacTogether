@@ -6,12 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.jbaldwindev.TicTacTogether.services.RoomService;
-
+import com.google.gson.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -33,5 +30,13 @@ public class RoomController {
         } else {
             return new ResponseEntity<>("Failed to create room", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/getrooms")
+    public ResponseEntity<String> getRooms() {
+        ArrayList<RoomData> roomList = roomService.getRoomDataList();
+        Gson gson = new Gson();
+        String data = gson.toJson(roomList);
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 }

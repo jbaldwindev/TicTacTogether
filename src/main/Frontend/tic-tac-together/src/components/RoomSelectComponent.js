@@ -13,6 +13,7 @@ const RoomSelectComponent = (props) => {
     const navigate = useNavigate();
     //this could just be a list of numbers which represent the room IDs
     const [roomButtonList, setRoomButtonList] = useState([]);
+    const [retrievedRoomList, setRetrievedRoomList] = useState([]);
     const joinRoomClick = (e) => {
         //e.target.id for getting the button ID
         navigate('/room/' + parseInt(e.target.id));
@@ -39,13 +40,25 @@ const RoomSelectComponent = (props) => {
 
     //TODO remove this
     useEffect(() => {
-        setRoomButtonList([...roomButtonList, 1, 2]);
+        RoomService.GetRooms().then((response) => {
+            let idList = []
+            for (const roomData of response.data) { 
+                idList = [...idList, parseInt(roomData.RoomID)];
+            }
+            console.log(idList);
+            //setRetrievedRoomList(idList);
+            setRoomButtonList(roomButtonList.concat(idList));
+        });
     }, []);
+
+    useEffect(() => {
+        setRoomButtonList(roomButtonList.concat(retrievedRoomList));
+        console.log(roomButtonList);
+    }, [retrievedRoomList]);
 
     return (
         <div>
             <button onClick={addRoom}>Add New Room</button>
-            <button onClick={(e) => joinRoomClickFake(e)}>Join Room 1</button>
             { roomButtonList.length > 0 ? roomButtonList.map((buttonID) => (
                 <button id={buttonID} onClick={(e) => joinRoomClick(e)}>Join Room {buttonID}</button>
             )) : <p>No Rooms yet</p>}

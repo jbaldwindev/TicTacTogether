@@ -1,6 +1,7 @@
 package com.jbaldwindev.TicTacTogether.services;
 
 import com.jbaldwindev.TicTacTogether.models.RoomData;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -9,7 +10,9 @@ import java.util.Random;
 //TODO generate a room ID in here
 @Service("roomService")
 public class RoomService {
-    ArrayList<RoomData> RoomDataList = new ArrayList<RoomData>();
+
+    @Getter
+    private ArrayList<RoomData> RoomDataList = new ArrayList<RoomData>();
     Random rand = new Random();
 
     public int CreateRoom() {

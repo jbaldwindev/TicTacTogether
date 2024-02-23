@@ -6,6 +6,10 @@ class RoomService {
     PostAddRoom() {
         return axios.post(USER_API_BASE_URL + "addRoom");
     }
+
+    GetRooms() {
+        return axios.get(USER_API_BASE_URL + "getrooms");
+    }
 }
 
 export default new RoomService()
