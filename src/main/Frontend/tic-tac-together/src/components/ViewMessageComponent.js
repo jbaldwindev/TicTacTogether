@@ -10,7 +10,6 @@ import './styles/Board.css'
 const ViewMessageComponent = (props) => {
     const [buttonText, setButtonText] = useState("Start Game");
     const [playerTurnText, setPlayerTurnText] = useState("Player 2's Turn");
-    //TODO make sure this gets set and changed
     const [playerTurn, setPlayerTurn] = useState(2);
     const [resetText] = useState("");
     const [moveList, setMoveList] = useState([]);
@@ -29,9 +28,9 @@ const ViewMessageComponent = (props) => {
 
     const startResetClick = () => {
         if (buttonText.toLowerCase() == "start game") {
-            stompClient?.send("/app/startgame");
+            stompClient?.send("/app/startgame/" + componentParams.roomId);
         } else {
-            stompClient?.send("/app/resetgame")
+            stompClient?.send("/app/resetgame/" + componentParams.roomId);
         }
     }
 
@@ -42,12 +41,13 @@ const ViewMessageComponent = (props) => {
         }
     }
 
+    //TODO subscribe to path that's specific to this room
     useEffect(() => {
         const socket = new SockJS('http:/localhost:8080/ws');
         const client = Stomp.over(socket);
 
         client.connect({}, () => {
-            client.subscribe('/topic/playermoved', (message) => {
+            client.subscribe('/topic/playermoved/' + componentParams.roomId, (message) => {
                 const receivedMessage = JSON.parse(message.body);
                 setMoveList((prevMoveList) => [...prevMoveList, receivedMessage]);
                 setDisplayMessage(receivedMessage);
@@ -60,19 +60,19 @@ const ViewMessageComponent = (props) => {
                 }
             });
 
-            client.subscribe('/topic/playeradded', (playerNum) => {
+            client.subscribe('/topic/playeradded/' + componentParams.roomId, (playerNum) => {
                 const pnum = Number(playerNum.body);
                 setReceivedPlayerID(pnum);
             });
 
-            client.subscribe("/topic/gamestarted", () => {
+            client.subscribe("/topic/gamestarted/" + componentParams.roomId, () => {
                 setGameStatus("started");
                 setButtonText("Reset");
                 setPlayerTurnText("Player 1's Turn");
                 setPlayerTurn(1);
             });
 
-            client.subscribe("/topic/gamereset", () => {
+            client.subscribe("/topic/gamereset/" + componentParams.roomId, () => {
                 setGameStatus("reset");
                 resetBoard();
                 setPlayerTurnText("Player 1's Turn");
@@ -80,12 +80,12 @@ const ViewMessageComponent = (props) => {
                 setButtonText("Start Game");
             });
 
-            client.subscribe("/topic/turnchanged", (message) => {
+            client.subscribe("/topic/turnchanged/" + componentParams.roomId, (message) => {
                 console.log("Turn has changed");
                 setReceivedTurnChange(Number(message.body));
             });
 
-            client.subscribe("/topic/winstatus", (message) => {
+            client.subscribe("/topic/winstatus/" + componentParams.roomId, (message) => {
                 console.log("received win message");
                 const receivedMessage = JSON.parse(message.body);
                 if (receivedMessage.winResponse == "win") {
@@ -156,7 +156,7 @@ const ViewMessageComponent = (props) => {
     }, [spaceClicked]);
 
     const assignPlayerID = () => {
-        stompClient?.send("/app/addplayer");
+        stompClient?.send("/app/addplayer/" + componentParams.roomId);
     }
 
     const sendMove = () => {
@@ -166,7 +166,7 @@ const ViewMessageComponent = (props) => {
         }
 
         if (moveData.spaceNumber > 0) {
-            stompClient.send("/app/move", {} ,JSON.stringify(moveData));
+            stompClient.send("/app/move/" + componentParams.roomId, {} ,JSON.stringify(moveData));
         }
     }
 
@@ -176,7 +176,7 @@ const ViewMessageComponent = (props) => {
             winResponse: "N/A",
             turnIncrement: 0
         }
-        stompClient.send("/app/checkwin", {}, JSON.stringify(winResponseData));
+        stompClient.send("/app/checkwin/" + componentParams.roomId, {}, JSON.stringify(winResponseData));
     }
 
     const winGame = () => {
@@ -185,7 +185,7 @@ const ViewMessageComponent = (props) => {
     }
 
     const changeTurn = () => {
-        stompClient.send("/app/changeturn");
+        stompClient.send("/app/changeturn/" + componentParams.roomId);
     }
 
     const fillSpace = (e) => {

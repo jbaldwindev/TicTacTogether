@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.jbaldwindev.TicTacTogether.models.MoveData;
 import com.jbaldwindev.TicTacTogether.models.WinResponseData;
 import com.jbaldwindev.TicTacTogether.services.GameService;
+import com.jbaldwindev.TicTacTogether.services.RoomService;
 import org.bson.json.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -19,51 +21,20 @@ import org.springframework.web.bind.annotation.*;
 public class HelloWorldController
 {
     @Autowired
-    private GameService gameService;
+    private RoomService roomService;
     @GetMapping("/hello")
     public String hello() {
         return "Hello World";
     }
 
-    private int turn = 0;
-    private int winIncrement = 0;
-    private int turnChangeIncrement = 0;
-
-    @PostMapping("/move")
-    public ResponseEntity<String> move(@RequestBody String playerNum) {
+    @MessageMapping("/move/{room}")
+    @SendTo("/topic/playermoved/{room}")
+    public MoveData sendMove(@DestinationVariable int room, @Payload MoveData moveData) {
         try {
-            PlayerMove pMove = new ObjectMapper().readValue(playerNum, PlayerMove.class);
-            gameService.FillSpace(Integer.parseInt(pMove.playerNumber), Integer.parseInt(pMove.spaceNumber));
-            if (gameService.CheckWin()) {
-                gameService.RestartGame();
-                return new ResponseEntity<>("win", HttpStatus.OK);
-
-            } else {
-                gameService.ChangeTurn();
-                return new ResponseEntity<>("continue", HttpStatus.OK);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
-    }
-    @PostMapping("/startgame")
-    public void startGame() {
-    }
-
-    @PostMapping("/reset")
-    public ResponseEntity<String> reset() {
-        gameService.RestartGame();
-        return new ResponseEntity<>("reset successful", HttpStatus.OK);
-    }
-
-    @MessageMapping("/move")
-    @SendTo("/topic/playermoved")
-    public MoveData sendMove(@Payload MoveData moveData) {
-        try {
-            if (gameService.hasGameStarted() && (gameService.getPlayerTurn() == moveData.getUserId())) {
-                gameService.FillSpace(moveData.getUserId(), moveData.getSpaceNumber());
-                gameService.printBoard();
+            GameService game = roomService.GetGame(room);
+            if (game.hasGameStarted() && (game.getPlayerTurn() == moveData.getUserId())) {
+                game.FillSpace(moveData.getUserId(), moveData.getSpaceNumber());
+                game.printBoard();
                 return moveData;
             }
         } catch (Exception e) {
@@ -74,41 +45,46 @@ public class HelloWorldController
         return moveData;
     }
 
-    @MessageMapping("/addplayer")
-    @SendTo("/topic/playeradded")
-    public int addPlayer() {
-        return gameService.AddPlayer();
+    @MessageMapping("/addplayer/{room}")
+    @SendTo("/topic/playeradded/{room}")
+    public int addPlayer(@DestinationVariable int room) {
+        GameService game = roomService.GetGame(room);
+        return game.AddPlayer();
     }
 
-    @MessageMapping("/startgame")
-    @SendTo("/topic/gamestarted")
-    public String startGameSocket() {
-        gameService.StartGame();
+    @MessageMapping("/startgame/{room}")
+    @SendTo("/topic/gamestarted/{room}")
+    public String startGameSocket(@DestinationVariable int room) {
+        GameService game = roomService.GetGame(room);
+        game.StartGame();
         return "gamestarted";
     }
 
-    @MessageMapping("/resetgame")
-    @SendTo("/topic/gamereset")
-    public String resetSocket() {
-        gameService.RestartGame();
+    @MessageMapping("/resetgame/{room}")
+    @SendTo("/topic/gamereset/{room}")
+    public String resetSocket(@DestinationVariable int room) {
+        GameService game = roomService.GetGame(room);
+        game.RestartGame();
         return "reset";
     }
 
-    @MessageMapping("/changeturn")
-    @SendTo("/topic/turnchanged")
-    public int changeTurn() {
-        gameService.ChangeTurn();
-        turn += 1;
-        return turn;
+    @MessageMapping("/changeturn/{room}")
+    @SendTo("/topic/turnchanged/{room}")
+    public int changeTurn(@DestinationVariable int room) {
+        GameService game = roomService.GetGame(room);
+        game.ChangeTurn();
+        game.turn += 1;
+        return game.turn;
     }
 
-    @MessageMapping("/checkwin")
-    @SendTo("/topic/winstatus")
-    public WinResponseData checkWin(@Payload WinResponseData winResponseData) {
+    @MessageMapping("/checkwin/{room}")
+    @SendTo("/topic/winstatus/{room}")
+    public WinResponseData checkWin(@DestinationVariable int room, @Payload WinResponseData winResponseData) {
+        GameService game = roomService.GetGame(room);
         WinResponseData updatedData = winResponseData;
-        turnChangeIncrement += 1;
-        updatedData.setTurnIncrement(updatedData.getTurnIncrement() + turnChangeIncrement);
-        if (gameService.CheckWin()) {
+        game.turnChangeIncrement += 1;
+        updatedData.setTurnIncrement(updatedData.getTurnIncrement() + game.turnChangeIncrement);
+        if (game.CheckWin()) {
             //TODO remove
             System.out.println("sending a win message");
             updatedData.setWinResponse("win");

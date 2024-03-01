@@ -19,9 +19,6 @@ public class RoomController {
     @Autowired
     private RoomService roomService;
 
-    //TODO Generate an ID for the room
-    //If ID is taken, go back to step one
-    //If ID not take, add ID to list and send ID back to client
     @PostMapping("/addRoom")
     public ResponseEntity<String> addRoom() {
         int newRoomID = roomService.CreateRoom();

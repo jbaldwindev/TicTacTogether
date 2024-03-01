@@ -14,7 +14,8 @@ import java.util.ArrayList;
 //if win, EndGame/reset
 //else
 //change turn
-@Service("gameService")
+
+//TODO stop this from being a service, add a constructor
 public class GameService {
     private char[][] board = new char[3][3];
     @Getter
@@ -22,14 +23,18 @@ public class GameService {
     private Boolean[] playerJoined = new Boolean[2];
     private int winner;
     private boolean gameStarted;
-
-    @PostConstruct
-    public void InitGameService()
+    public int turn;
+    public int winIncrement;
+    public int turnChangeIncrement;
+    public GameService()
     {
         playerJoined[0] = false;
         playerJoined[1] = false;
         playerTurn = 1;
         gameStarted = false;
+        turn = 0;
+        winIncrement = 0;
+        turnChangeIncrement = 0;
         SetBoard();
     }
 
