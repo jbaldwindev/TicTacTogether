@@ -13,6 +13,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", maxAge = 4800)
@@ -22,6 +23,10 @@ public class HelloWorldController
 {
     @Autowired
     private RoomService roomService;
+
+    @Autowired
+    private SimpMessagingTemplate template;
+
     @GetMapping("/hello")
     public String hello() {
         return "Hello World";
@@ -45,11 +50,15 @@ public class HelloWorldController
         return moveData;
     }
 
-    @MessageMapping("/addplayer/{room}")
-    @SendTo("/topic/playeradded/{room}")
-    public int addPlayer(@DestinationVariable int room) {
+    @MessageMapping("/addplayer/{room}/{username}")
+    public void addPlayer(@DestinationVariable int room, @DestinationVariable String username) {
         GameService game = roomService.GetGame(room);
-        return game.AddPlayer();
+        int numPlayersJoined = game.AddPlayer(username);
+        if (numPlayersJoined == 2) {
+            String[] usernames = game.getUsernames();
+            template.convertAndSend("/topic/playeradded/" + room + "/" + usernames[0], 1);
+            template.convertAndSend("/topic/playeradded/" + room + "/" + usernames[1], 2);
+        }
     }
 
     @MessageMapping("/startgame/{room}")
@@ -85,7 +94,6 @@ public class HelloWorldController
         game.turnChangeIncrement += 1;
         updatedData.setTurnIncrement(updatedData.getTurnIncrement() + game.turnChangeIncrement);
         if (game.CheckWin()) {
-            //TODO remove
             System.out.println("sending a win message");
             updatedData.setWinResponse("win");
         } else {

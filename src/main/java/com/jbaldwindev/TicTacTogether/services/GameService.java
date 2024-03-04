@@ -26,6 +26,8 @@ public class GameService {
     public int turn;
     public int winIncrement;
     public int turnChangeIncrement;
+    @Getter
+    private String[] usernames = new String[2];
     public GameService()
     {
         playerJoined[0] = false;
@@ -155,12 +157,14 @@ public class GameService {
         System.out.println("Player " + this.winner + " wins");
     }
 
-    public int AddPlayer() {
+    public int AddPlayer(String username) {
         if (!playerJoined[0]) {
             playerJoined[0] = true;
+            usernames[0] = username;
             return 1;
         } else if (!playerJoined[1]) {
             playerJoined[1] = true;
+            usernames[1] = username;
             return 2;
         } else {
             return -1;

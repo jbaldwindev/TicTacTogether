@@ -24,6 +24,8 @@ const ViewMessageComponent = (props) => {
     const [changePlayerTurn, setChangePlayerTurn] = useState("");
     const [receivedTurnChange, setReceivedTurnChange] = useState(-1);
     const [triggerPlayerWin, setTriggerPlayerWin] = useState(0);
+    const [userName, setUserName] = useState("");
+    const [submittedUserName, setSubmittedUserName] = useState("");
     const componentParams = useParams();
 
     const startResetClick = () => {
@@ -41,7 +43,6 @@ const ViewMessageComponent = (props) => {
         }
     }
 
-    //TODO subscribe to path that's specific to this room
     useEffect(() => {
         const socket = new SockJS('http:/localhost:8080/ws');
         const client = Stomp.over(socket);
@@ -60,10 +61,10 @@ const ViewMessageComponent = (props) => {
                 }
             });
 
-            client.subscribe('/topic/playeradded/' + componentParams.roomId, (playerNum) => {
-                const pnum = Number(playerNum.body);
-                setReceivedPlayerID(pnum);
-            });
+            // client.subscribe('/topic/playeradded/' + componentParams.roomId, (playerNum) => {
+            //     const pnum = Number(playerNum.body);
+            //     setReceivedPlayerID(pnum);
+            // });
 
             client.subscribe("/topic/gamestarted/" + componentParams.roomId, () => {
                 setGameStatus("started");
@@ -199,13 +200,45 @@ const ViewMessageComponent = (props) => {
         }
     }
 
+    const handleChange = (e) => {
+        setUserName(e.target.value);
+    }
+
+    const handleSubmit = (e) => {
+        e. preventDefault();
+        console.log("this is the value: " + e.target.value);
+        setSubmittedUserName(userName);
+    }
+
+    useEffect(() => {
+        stompClient?.subscribe('/topic/playeradded/' + componentParams.roomId + "/" + submittedUserName, (message) => {
+            const pnum = Number(message.body);
+            setReceivedPlayerID(pnum);
+        });
+
+        stompClient?.send("/app/addplayer/" + componentParams.roomId + "/" + submittedUserName);
+    }, [submittedUserName]);
+
     return (
 
         <div>
+            {submittedUserName ? <div></div> : (
+                <form onSubmit={handleSubmit}>
+                    <label>
+                        Name:
+                        <input type="text" value={userName} onChange={handleChange} />
+                    </label>
+                    <input type="submit" value="Submit" />
+                </form>
+            )}
+            {submittedUserName ? (
+                <h3>You username is: {submittedUserName}</h3>
+            ) : <div></div>}
             <h1>{playerTurnText}</h1>
             <div className="Board">
             <h1>Player that moved: {displayMessage.userId} </h1>
             <h1>Space moved to: {displayMessage.spaceNumber}</h1>
+            {playerID ? <h3>You are player: {playerID}</h3> : <h3>Player number not yet assigned</h3>}
             {componentParams.roomId ? <h1> This rooms ID: {componentParams.roomId}</h1> : <h1>This room has no ID</h1>}
                 <table>
                     <tbody>
