@@ -35,6 +35,7 @@ public class HelloWorldController
     @MessageMapping("/move/{room}")
     @SendTo("/topic/playermoved/{room}")
     public MoveData sendMove(@DestinationVariable int room, @Payload MoveData moveData) {
+        System.out.println("the move has been received in some capacity");
         try {
             GameService game = roomService.GetGame(room);
             if (game.hasGameStarted() && (game.getPlayerTurn() == moveData.getUserId())) {
@@ -46,7 +47,7 @@ public class HelloWorldController
             e.printStackTrace();
         }
 
-        MoveData falseMoveData = new MoveData(-99,-99);
+        MoveData falseMoveData = new MoveData(-99,-99, -99);
         return moveData;
     }
 

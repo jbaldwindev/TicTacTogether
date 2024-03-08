@@ -27,6 +27,7 @@ const ViewMessageComponent = (props) => {
     const [userName, setUserName] = useState("");
     const [submittedUserName, setSubmittedUserName] = useState("");
     const componentParams = useParams();
+    const [sendMoveCounter, setSendMoveCounter] = useState(0);
 
     const startResetClick = () => {
         if (buttonText.toLowerCase() == "start game") {
@@ -49,10 +50,11 @@ const ViewMessageComponent = (props) => {
 
         client.connect({}, () => {
             client.subscribe('/topic/playermoved/' + componentParams.roomId, (message) => {
+                console.log("move is being received");
                 const receivedMessage = JSON.parse(message.body);
                 setMoveList((prevMoveList) => [...prevMoveList, receivedMessage]);
                 setDisplayMessage(receivedMessage);
-                console.log(receivedMessage.spaceNumber.toString());
+                console.log("Space number received is: " + receivedMessage.spaceNumber.toString());
                 const space = document.getElementById(receivedMessage.spaceNumber.toString());
                 if (receivedMessage.userId == 1) {
                     space.innerText = "X";
@@ -78,6 +80,7 @@ const ViewMessageComponent = (props) => {
                 resetBoard();
                 setPlayerTurnText("Player 1's Turn");
                 setPlayerTurn(1);
+                setSpaceClicked(-99);
                 setButtonText("Start Game");
             });
 
@@ -124,10 +127,11 @@ const ViewMessageComponent = (props) => {
 
     useEffect(() => {
         if (playerTurn == 1) {
-
+            console.log("Changing to p2");
             setPlayerTurnText("Player 2's Turn");
             setPlayerTurn(2);
         } else if (playerTurn == 2) {
+            console.log("Changing to p1");
             setPlayerTurnText("Player 1's Turn");
             setPlayerTurn(1);
         }
@@ -153,6 +157,7 @@ const ViewMessageComponent = (props) => {
     }, [stompClient]);
 
     useEffect(() => {
+        setSendMoveCounter(t => t + 1);
         sendMove();
     }, [spaceClicked]);
 
@@ -160,12 +165,15 @@ const ViewMessageComponent = (props) => {
         stompClient?.send("/app/addplayer/" + componentParams.roomId);
     }
 
+    //TODO the issue probably has to be here then
     const sendMove = () => {
+        
         const moveData = {
             userId: playerID,
-            spaceNumber: spaceClicked
+            spaceNumber: spaceClicked,
+            sendMoveIncrement: sendMoveCounter
         }
-
+        console.log("making it to the beginning of sendMove");
         if (moveData.spaceNumber > 0) {
             stompClient.send("/app/move/" + componentParams.roomId, {} ,JSON.stringify(moveData));
         }
@@ -189,11 +197,15 @@ const ViewMessageComponent = (props) => {
         stompClient.send("/app/changeturn/" + componentParams.roomId);
     }
 
+    //TODO so the error is most likely when setSpaceClicked is called
     const fillSpace = (e) => {
+        console.log("Gamestatus is: " + gameStatus);
         if (gameStatus == "started") {
             if (playerTurn == playerID) {
                 if (e.target.innerText == "") {
                     let newSpace = parseInt(e.target.id);
+                    //I think that the error with this is that the space is being set to the same value
+                    //that it previously was, so it's not setting it again and sending the move
                     setSpaceClicked(newSpace);
                 }
             }

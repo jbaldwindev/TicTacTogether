@@ -10,4 +10,5 @@ import lombok.ToString;
 public class MoveData {
     private int userId;
     private int spaceNumber;
+    private int sendMoveIncrement;
 }
