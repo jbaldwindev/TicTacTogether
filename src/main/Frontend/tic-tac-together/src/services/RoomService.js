@@ -10,6 +10,10 @@ class RoomService {
     GetRooms() {
         return axios.get(USER_API_BASE_URL + "getrooms");
     }
+
+    GetRoomValidity(roomId) {
+        return axios.get(USER_API_BASE_URL + "checkvalid/" + roomId);
+    }
 }
 
 export default new RoomService()

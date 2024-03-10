@@ -36,4 +36,11 @@ public class RoomController {
         String data = gson.toJson(roomList);
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
+
+    @GetMapping("checkvalid/{roomId}")
+    public ResponseEntity<Boolean> getRoomValidity(@PathVariable int roomId) {
+        boolean isValid = roomService.IsValidRoom(roomId);
+        System.out.println(isValid);
+        return new ResponseEntity<>(isValid, HttpStatus.OK);
+    }
 }

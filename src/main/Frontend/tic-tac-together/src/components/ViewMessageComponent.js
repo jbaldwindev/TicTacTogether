@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import {useNavigate} from 'react-router-dom';
 import ReactDOM from 'react-dom';
 import HelloWorldService from '../services/HelloWorldService'
 import GameService from '../services/GameService'
@@ -6,8 +7,10 @@ import { useParams } from 'react-router-dom';
 import Stomp from 'stompjs';
 import SockJS from 'sockjs-client';
 import './styles/Board.css'
+import RoomService from '../services/RoomService';
 
 const ViewMessageComponent = (props) => {
+    const navigate = useNavigate();
     const [buttonText, setButtonText] = useState("Start Game");
     const [playerTurnText, setPlayerTurnText] = useState("Player 2's Turn");
     const [playerTurn, setPlayerTurn] = useState(2);
@@ -28,6 +31,7 @@ const ViewMessageComponent = (props) => {
     const [submittedUserName, setSubmittedUserName] = useState("");
     const componentParams = useParams();
     const [sendMoveCounter, setSendMoveCounter] = useState(0);
+    const [roomValid, setRoomValid] = useState(false);
 
     const startResetClick = () => {
         if (buttonText.toLowerCase() == "start game") {
@@ -154,6 +158,19 @@ const ViewMessageComponent = (props) => {
         if (stompClient != null) {
             setTimeout(assignPlayerID, 3000);
         }
+        //TODO request to check if room is valid
+        //conditional rendering based on what is retrieved
+        RoomService.GetRoomValidity(Number(componentParams.roomId)).then((response) => {
+            var respBool = response.data;
+            console.log("response boolean:");
+            console.log(response.data);
+            var isTrueSet = (respBool === true);
+            if (isTrueSet) {
+                setRoomValid(true);
+            } else {
+                navigate('/invalid-room');
+            }
+        });
     }, [stompClient]);
 
     useEffect(() => {
@@ -165,7 +182,6 @@ const ViewMessageComponent = (props) => {
         stompClient?.send("/app/addplayer/" + componentParams.roomId);
     }
 
-    //TODO the issue probably has to be here then
     const sendMove = () => {
         
         const moveData = {

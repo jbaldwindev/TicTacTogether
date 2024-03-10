@@ -41,4 +41,8 @@ public class RoomService {
         GameService game = RoomGameMap.get(roomId);
         return game;
     }
+
+    public boolean IsValidRoom(int roomToCheck) {
+        return RoomGameMap.containsKey(roomToCheck);
+    }
 }
