@@ -11,10 +11,11 @@ import java.util.Random;
 @Service("roomService")
 public class RoomService {
 
-    //TODO might want to change this to a hashmap as well to make it easier to find the corresponding
-    //room data
+    //TODO have list of rooms that are in session
     @Getter
     private ArrayList<RoomData> RoomDataList = new ArrayList<RoomData>();
+    @Getter
+    private ArrayList<Integer> RoomInSessionList = new ArrayList<>();
     private HashMap<Integer, GameService> RoomGameMap = new HashMap<Integer, GameService>();
     Random rand = new Random();
 
@@ -44,5 +45,15 @@ public class RoomService {
 
     public boolean IsValidRoom(int roomToCheck) {
         return RoomGameMap.containsKey(roomToCheck);
+    }
+
+    public void AddRoomInSession(int roomId) {
+        if (!RoomInSessionList.contains(roomId)) {
+            RoomInSessionList.add(roomId);
+        }
+    }
+
+    public boolean IsRoomInSession(int roomId) {
+        return RoomInSessionList.contains(roomId);
     }
 }

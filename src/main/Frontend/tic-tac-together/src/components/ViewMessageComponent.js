@@ -158,8 +158,6 @@ const ViewMessageComponent = (props) => {
         if (stompClient != null) {
             setTimeout(assignPlayerID, 3000);
         }
-        //TODO request to check if room is valid
-        //conditional rendering based on what is retrieved
         RoomService.GetRoomValidity(Number(componentParams.roomId)).then((response) => {
             var respBool = response.data;
             console.log("response boolean:");
@@ -213,15 +211,12 @@ const ViewMessageComponent = (props) => {
         stompClient.send("/app/changeturn/" + componentParams.roomId);
     }
 
-    //TODO so the error is most likely when setSpaceClicked is called
     const fillSpace = (e) => {
         console.log("Gamestatus is: " + gameStatus);
         if (gameStatus == "started") {
             if (playerTurn == playerID) {
                 if (e.target.innerText == "") {
                     let newSpace = parseInt(e.target.id);
-                    //I think that the error with this is that the space is being set to the same value
-                    //that it previously was, so it's not setting it again and sending the move
                     setSpaceClicked(newSpace);
                 }
             }

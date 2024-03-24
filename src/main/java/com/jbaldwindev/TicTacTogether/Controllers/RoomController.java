@@ -32,8 +32,14 @@ public class RoomController {
     @GetMapping("/getrooms")
     public ResponseEntity<String> getRooms() {
         ArrayList<RoomData> roomList = roomService.getRoomDataList();
+        ArrayList<RoomData> availableRoomList = new ArrayList<>();
+        for (RoomData roomData : roomList) {
+            if (!roomService.IsRoomInSession(roomData.getRoomID())) {
+                availableRoomList.add(roomData);
+            }
+        }
         Gson gson = new Gson();
-        String data = gson.toJson(roomList);
+        String data = gson.toJson(availableRoomList);
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 

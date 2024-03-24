@@ -59,6 +59,7 @@ public class HelloWorldController
             String[] usernames = game.getUsernames();
             template.convertAndSend("/topic/playeradded/" + room + "/" + usernames[0], 1);
             template.convertAndSend("/topic/playeradded/" + room + "/" + usernames[1], 2);
+            roomService.AddRoomInSession(room);
         }
     }
 
