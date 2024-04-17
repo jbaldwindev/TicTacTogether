@@ -15,4 +15,6 @@ public class RoomData implements Serializable {
     int player1ID;
     int player2ID;
     int RoomID;
+    String session1;
+    String session2;
 }

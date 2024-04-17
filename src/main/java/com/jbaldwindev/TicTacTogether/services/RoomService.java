@@ -56,4 +56,38 @@ public class RoomService {
     public boolean IsRoomInSession(int roomId) {
         return RoomInSessionList.contains(roomId);
     }
+
+    public void AddSessionId(int roomId, String sessionId) {
+        for (RoomData roomData : RoomDataList) {
+            if (roomData.getRoomID() == roomId) {
+                if (roomData.getSession1() == null) {
+                    roomData.setSession1(sessionId);
+                } else if (roomData.getSession2() == null) {
+                    roomData.setSession2(sessionId);
+                }
+                break;
+            }
+        }
+    }
+
+    //TODO have this return a room or room id so the HelloWorldController can send
+    //Maybe an arraylist with the users' usernames since that is what is used to send messages to specific users
+    public String[] PlayerDisconnect(String sessionId) {
+        for (RoomData roomData : RoomDataList) {
+            if (roomData.getSession1() == sessionId || roomData.getSession2() == sessionId) {
+                String[] usernames;
+                GameService game = this.GetGame(roomData.getRoomID());
+                usernames = game.getUsernames();
+                if (RoomInSessionList.contains(roomData.getRoomID())) {
+                    RoomInSessionList.remove(RoomInSessionList.indexOf(roomData.getRoomID()));
+                }
+                if (RoomGameMap.containsKey(roomData.getRoomID())) {
+                    RoomGameMap.remove(roomData.getRoomID());
+                }
+                RoomDataList.remove(roomData);
+                return usernames;
+            }
+        }
+        return null;
+    }
 }

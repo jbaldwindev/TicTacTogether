@@ -32,6 +32,7 @@ const ViewMessageComponent = (props) => {
     const componentParams = useParams();
     const [sendMoveCounter, setSendMoveCounter] = useState(0);
     const [roomValid, setRoomValid] = useState(false);
+    const [disconnectMessage, setDisconnectMessage] = useState();
 
     const startResetClick = () => {
         if (buttonText.toLowerCase() == "start game") {
@@ -239,6 +240,10 @@ const ViewMessageComponent = (props) => {
             setReceivedPlayerID(pnum);
         });
 
+        stompClient?.subscribe('/topic/playerdisconnected/' + submittedUserName, (message) => {
+            setDisconnectMessage("Player has disconnnected");
+        });
+
         stompClient?.send("/app/addplayer/" + componentParams.roomId + "/" + submittedUserName);
     }, [submittedUserName]);
 
@@ -258,6 +263,7 @@ const ViewMessageComponent = (props) => {
                 <h3>You username is: {submittedUserName}</h3>
             ) : <div></div>}
             <h1>{playerTurnText}</h1>
+            <h1>{disconnectMessage}</h1>
             <div className="Board">
             <h1>Player that moved: {displayMessage.userId} </h1>
             <h1>Space moved to: {displayMessage.spaceNumber}</h1>

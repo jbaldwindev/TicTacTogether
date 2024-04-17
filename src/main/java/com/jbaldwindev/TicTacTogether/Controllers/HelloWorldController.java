@@ -7,14 +7,13 @@ import com.jbaldwindev.TicTacTogether.services.GameService;
 import com.jbaldwindev.TicTacTogether.services.RoomService;
 import org.bson.json.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 @CrossOrigin(origins = "*", maxAge = 4800)
 @RestController
@@ -52,7 +51,7 @@ public class HelloWorldController
     }
 
     @MessageMapping("/addplayer/{room}/{username}")
-    public void addPlayer(@DestinationVariable int room, @DestinationVariable String username) {
+    public void addPlayer(@Header("simpSessionId") String sessionId, @DestinationVariable int room, @DestinationVariable String username) {
         GameService game = roomService.GetGame(room);
         int numPlayersJoined = game.AddPlayer(username);
         if (numPlayersJoined == 2) {
@@ -61,6 +60,8 @@ public class HelloWorldController
             template.convertAndSend("/topic/playeradded/" + room + "/" + usernames[1], 2);
             roomService.AddRoomInSession(room);
         }
+        System.out.println("Session ID " + sessionId + " connected");
+        roomService.AddSessionId(room, sessionId);
     }
 
     @MessageMapping("/startgame/{room}")
@@ -103,6 +104,17 @@ public class HelloWorldController
             updatedData.setWinResponse("continue");
         }
         return updatedData;
+    }
+
+    //TODO probably have to make the client reload the main page so that they are no longer subscribed to the closed room
+    @EventListener
+    public void onDisconnectEvent(SessionDisconnectEvent event) {
+        System.out.println("Session ID " + event.getSessionId() +  " disconnected");
+        String[] usernames = roomService.PlayerDisconnect(event.getSessionId());
+        if (usernames != null) {
+            template.convertAndSend("/topic/playerdisconnected/" +  usernames[0], 1);
+            template.convertAndSend("/topic/playerdisconnected/" + usernames[1], 2);
+        }
     }
 
     public static class PlayerMove {
