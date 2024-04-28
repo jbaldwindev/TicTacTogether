@@ -8,6 +8,8 @@ import Stomp from 'stompjs';
 import SockJS from 'sockjs-client';
 import './styles/Board.css'
 import RoomService from '../services/RoomService';
+import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 const ViewMessageComponent = (props) => {
     const navigate = useNavigate();
@@ -263,34 +265,36 @@ const ViewMessageComponent = (props) => {
                 <h3>You username is: {submittedUserName}</h3>
             ) : <div></div>}
             <h1>{playerTurnText}</h1>
-            <h1>{disconnectMessage}</h1>
-            <div className="Board">
-            <h1>Player that moved: {displayMessage.userId} </h1>
-            <h1>Space moved to: {displayMessage.spaceNumber}</h1>
-            {playerID ? <h3>You are player: {playerID}</h3> : <h3>Player number not yet assigned</h3>}
-            {componentParams.roomId ? <h1> This rooms ID: {componentParams.roomId}</h1> : <h1>This room has no ID</h1>}
-                <table>
-                    <tbody>
-                        <tr>
-                            <td id="1" className="space" onClick={(e) => fillSpace(e)}></td>
-                            <td id="2" className="space" onClick={(e) => fillSpace(e)}></td>
-                            <td id="3" className="space" onClick={(e) => fillSpace(e)}></td>
-                        </tr>
-                        <tr>
-                            <td id="4" className="space" onClick={(e) => fillSpace(e)}></td>
-                            <td id="5" className="space" onClick={(e) => fillSpace(e)}></td>
-                            <td id="6" className="space" onClick={(e) => fillSpace(e)}></td>
-                        </tr>
-                        <tr>
-                            <td id="7" className="space" onClick={(e) => fillSpace(e)}></td>
-                            <td id="8" className="space" onClick={(e) => fillSpace(e)}></td>
-                            <td id="9" className="space" onClick={(e) => fillSpace(e)}></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <button onClick={startResetClick}>{buttonText}</button>
-                <button onClick={sendMove}>Send Move</button>
-            </div>
+            {disconnectMessage ? (
+                <h1>{disconnectMessage}</h1>
+            ) : (
+                <div className="Board">
+                <h1>Player that moved: {displayMessage.userId} </h1>
+                <h1>Space moved to: {displayMessage.spaceNumber}</h1>
+                {playerID ? <h3>You are player: {playerID}</h3> : <h3>Player number not yet assigned</h3>}
+                {componentParams.roomId ? <h1> This rooms ID: {componentParams.roomId}</h1> : <h1>This room has no ID</h1>}
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td id="1" className="space" onClick={(e) => fillSpace(e)}></td>
+                                <td id="2" className="space" onClick={(e) => fillSpace(e)}></td>
+                                <td id="3" className="space" onClick={(e) => fillSpace(e)}></td>
+                            </tr>
+                            <tr>
+                                <td id="4" className="space" onClick={(e) => fillSpace(e)}></td>
+                                <td id="5" className="space" onClick={(e) => fillSpace(e)}></td>
+                                <td id="6" className="space" onClick={(e) => fillSpace(e)}></td>
+                            </tr>
+                            <tr>
+                                <td id="7" className="space" onClick={(e) => fillSpace(e)}></td>
+                                <td id="8" className="space" onClick={(e) => fillSpace(e)}></td>
+                                <td id="9" className="space" onClick={(e) => fillSpace(e)}></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <Button variant="secondary" onClick={startResetClick}>{buttonText}</Button>
+                </div>
+            )}
         </div>
     );
 }
