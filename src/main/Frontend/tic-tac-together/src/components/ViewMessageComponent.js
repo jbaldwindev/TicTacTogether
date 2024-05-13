@@ -269,10 +269,8 @@ const ViewMessageComponent = (props) => {
                 <h1>{disconnectMessage}</h1>
             ) : (
                 <div className="Board">
-                <h1>Player that moved: {displayMessage.userId} </h1>
-                <h1>Space moved to: {displayMessage.spaceNumber}</h1>
-                {playerID ? <h3>You are player: {playerID}</h3> : <h3>Player number not yet assigned</h3>}
-                {componentParams.roomId ? <h1> This rooms ID: {componentParams.roomId}</h1> : <h1>This room has no ID</h1>}
+                {playerID > 0 ? <h3>You are player: {playerID}</h3> : <h3>Player number not yet assigned</h3>}
+                {componentParams.roomId ? <h1> Room ID: {componentParams.roomId}</h1> : <h1>This room has no ID</h1>}
                     <table>
                         <tbody>
                             <tr>

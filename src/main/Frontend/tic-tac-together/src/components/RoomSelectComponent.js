@@ -10,6 +10,8 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Card from 'react-bootstrap/Card';
 import ListGroup from 'react-bootstrap/ListGroup';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 //TODO
 //make refresh button that allows user to get updated list of rooms without
 //refreshing the page
@@ -51,17 +53,20 @@ const RoomSelectComponent = (props) => {
                 </Nav>
               </Container>
             </Navbar>
-            <Card style={{ width: '18rem' }}>
-              <Card.Header><Button variant="success" onClick={addRoom}>Add New Room</Button></Card.Header>
-              <ListGroup variant="flush">
-                { roomButtonList.length > 0 ? roomButtonList.map((buttonID) => (
-                    <ListGroup.Item>Room {buttonID}<Button id={buttonID} onClick={(e) => joinRoomClick(e)}>Join Room {buttonID}</Button></ListGroup.Item>
-                )) : <ListGroup.Item>No Rooms yet</ListGroup.Item>}
-              </ListGroup>
-            </Card>
-            
-            
-                
+            <Container>
+              <Row className="justify-content-md-center">
+                <Col md={{ span: 6, offset: 3 }}>
+                  <Card style={{ width: '18rem' }}>
+                    <Card.Header><Button variant="primary" onClick={addRoom}>Add New Room</Button></Card.Header>
+                    <ListGroup variant="flush">
+                      { roomButtonList.length > 0 ? roomButtonList.map((buttonID) => (
+                          <ListGroup.Item>Room {buttonID}   <Button variant="success" id={buttonID} onClick={(e) => joinRoomClick(e)}>Join Room {buttonID}</Button></ListGroup.Item>
+                      )) : <ListGroup.Item>No Rooms yet</ListGroup.Item>}
+                    </ListGroup>
+                  </Card>
+                </Col>
+              </Row>
+            </Container>   
         </div>
     );
 }
