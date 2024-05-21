@@ -57,10 +57,10 @@ const RoomSelectComponent = (props) => {
               <Row className="justify-content-md-center">
                 <Col md={{ span: 6, offset: 3 }}>
                   <Card style={{ width: '18rem' }}>
-                    <Card.Header><Button variant="primary" onClick={addRoom}>Add New Room</Button></Card.Header>
-                    <ListGroup variant="flush">
+                    <Card.Header className="center-btn"><Button variant="primary" onClick={addRoom}>Add New Room</Button></Card.Header>
+                    <ListGroup className="roomList" variant="flush">
                       { roomButtonList.length > 0 ? roomButtonList.map((buttonID) => (
-                          <ListGroup.Item>Room {buttonID}   <Button variant="success" id={buttonID} onClick={(e) => joinRoomClick(e)}>Join Room {buttonID}</Button></ListGroup.Item>
+                          <ListGroup.Item><p className="roomParagraph">Room {buttonID}</p><Button className="roomButton" variant="success" id={buttonID} onClick={(e) => joinRoomClick(e)}>Join Room</Button></ListGroup.Item>
                       )) : <ListGroup.Item>No Rooms yet</ListGroup.Item>}
                     </ListGroup>
                   </Card>
