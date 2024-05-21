@@ -53,7 +53,7 @@ const RoomSelectComponent = (props) => {
                 </Nav>
               </Container>
             </Navbar>
-            <Container>
+            <Container className="room-selector">
               <Row className="justify-content-md-center">
                 <Col md={{ span: 6, offset: 3 }}>
                   <Card style={{ width: '18rem' }}>

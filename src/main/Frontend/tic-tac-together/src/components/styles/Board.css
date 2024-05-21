@@ -34,6 +34,10 @@ table {
     border-right: none;
   }
 
+  #StartReset {
+    margin-left: 25%;
+  }
+
   .space {
     /*display: block;*/
     text-align: center;

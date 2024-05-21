@@ -2,3 +2,7 @@ button {
     display: block;
     text-align: center;
 }
+
+.room-selector {
+    padding-top: 20px;
+}

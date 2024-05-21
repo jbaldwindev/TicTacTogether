@@ -290,7 +290,7 @@ const ViewMessageComponent = (props) => {
                             </tr>
                         </tbody>
                     </table>
-                    <Button variant="secondary" onClick={startResetClick}>{buttonText}</Button>
+                    <Button id="StartReset" variant="secondary" onClick={startResetClick}>{buttonText}</Button>
                 </div>
             )}
         </div>
