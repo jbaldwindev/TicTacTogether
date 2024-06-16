@@ -10,6 +10,7 @@ import './styles/Board.css'
 import RoomService from '../services/RoomService';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import CustomNav from './CustomNav';
 
 const ViewMessageComponent = (props) => {
     const navigate = useNavigate();
@@ -37,6 +38,12 @@ const ViewMessageComponent = (props) => {
     const [disconnectMessage, setDisconnectMessage] = useState();
 
     const startResetClick = () => {
+        let startButton = document.getElementById("StartReset");
+        if (startButton.variant == "success") {
+            startButton.variant = "danger";
+        } else {
+            startButton = "success";
+        }
         if (buttonText.toLowerCase() == "start game") {
             stompClient?.send("/app/startgame/" + componentParams.roomId);
         } else {
@@ -131,6 +138,16 @@ const ViewMessageComponent = (props) => {
             setPlayerID(receivedPlayerID);
         }
     }, [receivedPlayerID]);
+
+    useEffect(() => {
+        let startButton = document.getElementById("StartReset");
+        if (buttonText == "Start Game") {
+            startButton = "success";
+        } else if (buttonText == "Reset") {
+            startButton.variant = "danger";
+        }
+          
+    }, [buttonText]);
 
     useEffect(() => {
         if (playerTurn == 1) {
@@ -238,7 +255,7 @@ const ViewMessageComponent = (props) => {
 
     useEffect(() => {
         stompClient?.subscribe('/topic/playeradded/' + componentParams.roomId + "/" + submittedUserName, (message) => {
-            const pnum = Number(message.body);
+            let pnum = Number(message.body);
             setReceivedPlayerID(pnum);
         });
 
@@ -264,13 +281,13 @@ const ViewMessageComponent = (props) => {
             {submittedUserName ? (
                 <h3>You username is: {submittedUserName}</h3>
             ) : <div></div>}
-            <h1>{playerTurnText}</h1>
             {disconnectMessage ? (
                 <h1>{disconnectMessage}</h1>
             ) : (
                 <div className="Board">
-                {playerID > 0 ? <h3>You are player: {playerID}</h3> : <h3>Player number not yet assigned</h3>}
+                {playerID > 0 ? <h3>You are player: {playerID}</h3> : <p></p>}
                 {componentParams.roomId ? <h1> Room ID: {componentParams.roomId}</h1> : <h1>This room has no ID</h1>}
+                <div className="playerTurnDisplay"><h1>{playerTurnText}</h1></div>
                     <table>
                         <tbody>
                             <tr>
@@ -290,7 +307,7 @@ const ViewMessageComponent = (props) => {
                             </tr>
                         </tbody>
                     </table>
-                    <Button id="StartReset" variant="secondary" onClick={startResetClick}>{buttonText}</Button>
+                    <Button id="StartReset" variant="success" onClick={startResetClick}>{buttonText}</Button>
                 </div>
             )}
         </div>

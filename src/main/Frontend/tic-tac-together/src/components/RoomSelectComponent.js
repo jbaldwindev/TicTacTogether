@@ -12,6 +12,7 @@ import Card from 'react-bootstrap/Card';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import CustomNav from './CustomNav';
 //TODO
 //make refresh button that allows user to get updated list of rooms without
 //refreshing the page
@@ -43,16 +44,7 @@ const RoomSelectComponent = (props) => {
 
     return (
         <div>
-            <Navbar bg="dark" data-bs-theme="dark">
-              <Container>
-                <Navbar.Brand href="#home">Tic-Tac-Together</Navbar.Brand>
-                <Nav className="me-auto">
-                  <Nav.Link href="#home">Home</Nav.Link>
-                  <Nav.Link href="#features">Features</Nav.Link>
-                  <Nav.Link href="#pricing">Pricing</Nav.Link>
-                </Nav>
-              </Container>
-            </Navbar>
+            <CustomNav></CustomNav>
             <Container className="room-selector">
               <Row className="justify-content-md-center">
                 <Col md={{ span: 6, offset: 3 }}>
