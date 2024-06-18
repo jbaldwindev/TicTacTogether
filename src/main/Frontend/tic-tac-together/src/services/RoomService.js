@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const USER_API_BASE_URL = "http://localhost:8080/room/";
+const USER_API_BASE_URL = "https://secret-lake-51530-ff11d6e23491.herokuapp.com/room/";
 
 class RoomService {
     PostAddRoom() {
