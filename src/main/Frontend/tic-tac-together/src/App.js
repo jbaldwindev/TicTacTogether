@@ -2,6 +2,7 @@ import RoomSelectComponent from './components/RoomSelectComponent';
 import ViewMessageComponent from './components/ViewMessageComponent';
 import InvalidRoomComponent from './components/InvalidRoomComponent';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import InfoComponent from './components/InfoComponent';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
         <Routes>
           <Route exact path="/" element={<RoomSelectComponent/>}/>
           <Route exact path="/Home" element={<RoomSelectComponent/>}/>
+          <Route exact path="/Info" element={<InfoComponent/>}/>
           <Route exact path="/room" element={<ViewMessageComponent/>}/>
           <Route exact path="/room/:roomId" element={<ViewMessageComponent/>}/>
           <Route exact path="invalid-room" element={<InvalidRoomComponent/>}/>

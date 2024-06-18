@@ -39,6 +39,15 @@ table {
     margin-top:20px;
   }
 
+  #username {
+    display: inline;
+    padding: 0 5px 0 20px;
+  }
+
+  .pad-left {
+    padding-left: 20px;
+  }
+
   .space {
     /*display: block;*/
     text-align: center;
@@ -51,3 +60,14 @@ table {
     text-align: center;
     margin-bottom: 40px;
   }
+
+  .center-content {
+    width: 500px;
+    padding-left: 60px;
+    margin: auto;
+  }
+
+  #form-submit {
+    margin-left: 5px;
+  }
+

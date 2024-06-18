@@ -269,25 +269,31 @@ const ViewMessageComponent = (props) => {
     return (
 
         <div>
-            {submittedUserName ? <div></div> : (
-                <form onSubmit={handleSubmit}>
-                    <label>
-                        Name:
-                        <input type="text" value={userName} onChange={handleChange} />
-                    </label>
-                    <input type="submit" value="Submit" />
-                </form>
-            )}
+            {componentParams.roomId ? <h1 class="pad-left"> Room ID: {componentParams.roomId}</h1> : <h1>This room has no ID</h1>}
+            <div className="center-content">
+                {submittedUserName ? <div></div> : (
+                    <form onSubmit={handleSubmit}>
+                        <label>
+                            <p id="username">Name:</p>
+                            <input type="text" value={userName} onChange={handleChange} />
+                        </label>
+                        <Button id="form-submit" type="submit" value="Submit">Submit</Button>
+                    </form>  
+                )}
+            </div>
             {submittedUserName ? (
-                <h3>You username is: {submittedUserName}</h3>
+                <h3 class="pad-left">Your username is: {submittedUserName}</h3>
             ) : <div></div>}
             {disconnectMessage ? (
                 <h1>{disconnectMessage}</h1>
             ) : (
                 <div className="Board">
-                {playerID > 0 ? <h3>You are player: {playerID}</h3> : <p></p>}
-                {componentParams.roomId ? <h1> Room ID: {componentParams.roomId}</h1> : <h1>This room has no ID</h1>}
-                <div className="playerTurnDisplay"><h1>{playerTurnText}</h1></div>
+                {playerID > 0 ? <h3 class="pad-left">You are player: {playerID}</h3> : <p></p>}
+                
+                <div className="playerTurnDisplay">
+                    {playerID > 0 ? <h1>{playerTurnText}</h1> : <p></p>}
+                    
+                </div>
                     <table>
                         <tbody>
                             <tr>
@@ -307,7 +313,8 @@ const ViewMessageComponent = (props) => {
                             </tr>
                         </tbody>
                     </table>
-                    <Button id="StartReset" variant="success" onClick={startResetClick}>{buttonText}</Button>
+                    {playerID > 0 ? <Button id="StartReset" variant="success" onClick={startResetClick}>{buttonText}</Button> : <p></p>}
+                    
                 </div>
             )}
         </div>
